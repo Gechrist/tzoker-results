@@ -22,6 +22,8 @@ export function App() @{
 
 	const callAPI = async () => {
 		isLoading.value = true;
+		errorMessage.value = false;
+
 		try {
 			const response = await fetch(
 				`https://api.opap.gr/draws/v3.0/5104/last-result-and-active`,
@@ -79,15 +81,18 @@ export function App() @{
 				<h2>Συχνά νούμερα Τζόκερ</h2>
 
 				<div class="counter">
-					<>
-						<input
-							min="1"
-							style={{ width: '3rem', textAlign: 'center' }}
-							type="number"
-							ref={bindValue(count)}
-						/>
-						<p>{'τελευταίες κληρώσεις'}</p>
-					</>
+					<input
+						onKeydown={(e: KeyboardEvent) => {
+							if (e.key === 'Enter') {
+								callAPI();
+							}
+						}}
+						min="1"
+						style={{ width: '3rem', textAlign: 'center' }}
+						type="number"
+						ref={bindValue(count)}
+					/>
+					<p>{'τελευταίες κληρώσεις'}</p>
 				</div>
 				<button onClick={() => callAPI()}>Λήψη</button>
 
