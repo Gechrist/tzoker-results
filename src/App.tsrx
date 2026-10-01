@@ -1,7 +1,7 @@
 import { track, bindValue, type Tracked } from 'ripple';
 
 export function App() @{
-	const count: Tracked<number> = track(1);
+	const count: Tracked<number> = track(2);
 	let winningNumbers: Tracked<number[]> = track([]);
 	let tzoker: Tracked<number[]> = track([]);
 	let errorMessage: Tracked<boolean> = track(false);
@@ -23,6 +23,11 @@ export function App() @{
 	const callAPI = async () => {
 		isLoading.value = true;
 		errorMessage.value = false;
+		if (count.value < 2) {
+			isLoading.value = false;
+			errorMessage.value = true;
+			return;
+		}
 
 		try {
 			const response = await fetch(
@@ -35,38 +40,35 @@ export function App() @{
 				},
 			);
 			let parsedResponse = await response.json();
-			winningNumbers.value = Object.values(parsedResponse.last.winningNumbers.list);
-			tzoker.value = Object.values(parsedResponse.last.winningNumbers.bonus);
 
-			if (count.value > 1) {
-				const response2 = await fetch(
-					`https://api.opap.gr/draws/v3.0/5104/draw-id/
+			const response2 = await fetch(
+				`https://api.opap.gr/draws/v3.0/5104/draw-id/
 						${
-						parsedResponse.last.drawId - (count.value - 1)
-					}
+					parsedResponse.last.drawId - (count.value - 1)
+				}
 					/${parsedResponse.last.drawId}
 					`,
-					{
-						method: 'GET',
-						headers: {
-							'Content-Type': 'application/json',
-						},
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
 					},
-				);
-				let parsedResponse2 = await response2.json();
-				parsedResponse2.content.forEach((draw: any) => {
-					winningNumbers.value = [
-						...winningNumbers.value,
-						...Object.values(draw.winningNumbers.list) as number[],
-					];
-					tzoker.value = [
-						...tzoker.value,
-						...Object.values(draw.winningNumbers.bonus) as number[],
-					];
-				});
-				winningNumbers.value = getMostCommonNumbers(winningNumbers.value, 6);
-				tzoker.value = getMostCommonNumbers(tzoker.value, 1);
-			}
+				},
+			);
+			let parsedResponse2 = await response2.json();
+			parsedResponse2.content.forEach((draw: any) => {
+				winningNumbers.value = [
+					...winningNumbers.value,
+					...Object.values(draw.winningNumbers.list) as number[],
+				];
+				tzoker.value = [
+					...tzoker.value,
+					...Object.values(draw.winningNumbers.bonus) as number[],
+				];
+			});
+			winningNumbers.value = getMostCommonNumbers(winningNumbers.value, 6);
+			tzoker.value = getMostCommonNumbers(tzoker.value, 1);
+
 			isLoading.value = false;
 		} catch (error) {
 			isLoading.value = false;
@@ -87,7 +89,7 @@ export function App() @{
 								callAPI();
 							}
 						}}
-						min="1"
+						min="2"
 						style={{ width: '3rem', textAlign: 'center' }}
 						type="number"
 						ref={bindValue(count)}
