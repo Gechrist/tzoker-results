@@ -66,7 +66,7 @@ export function App() @{
 					...Object.values(draw.winningNumbers.bonus) as number[],
 				];
 			});
-			winningNumbers.value = getMostCommonNumbers(winningNumbers.value, 6);
+			winningNumbers.value = getMostCommonNumbers(winningNumbers.value, 5);
 			tzoker.value = getMostCommonNumbers(tzoker.value, 1);
 
 			isLoading.value = false;
